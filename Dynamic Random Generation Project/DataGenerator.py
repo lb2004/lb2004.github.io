@@ -22,14 +22,24 @@ else:
     from tkinter import Button
 #########################
 
+inp_path=[]
+path=None
+
+def cinput(prompt, path=None):
+    if path not in [None, []]:
+        return path.pop(0)
+    global inp_path
+    response = input(prompt)
+    inp_path.append(response)
+    return response
 
 class StringInput:
 
-    def __init__(self, prompt, separator):
+    def __init__(self, prompt, separator, path=None):
         assert isinstance(prompt, str) and isinstance(separator, str)
         self.prompt = prompt
         self.separator = separator
-        self.input_string = input(prompt)
+        self.input_string = cinput(prompt, path)
 
     def list(self):
         if self.separator != ' ':
@@ -40,9 +50,13 @@ class StringInput:
         return len(self.list())
 
 
-def input_window():
+def input_window(path=None):
+    if path not in [None, []]:
+        return path.pop(0)
     def submit_text():
         user_input = text_entry.get("1.0", "end-1c")
+        global inp_path
+        inp_path.append(user_input)
         root.quit()
         return user_input
 
@@ -74,11 +88,11 @@ def input_window():
 
     return submit_text()
 
-def createint(dlen = 100):
+def createint(dlen = 100, path=None):
     dist = ''
     while True:
         try:
-            dist = input('Choose a Distribution (by number):\n 1. Uniform\n 2. Normal\n 3. Triangular\n 4. Bernoulli\n 5. Exponential\n').replace('.','')
+            dist = cinput('Choose a Distribution (by number):\n 1. Uniform\n 2. Normal\n 3. Triangular\n 4. Bernoulli\n 5. Exponential\n', path).replace('.','')
             _ = int(dist)
             break
         except:
@@ -87,10 +101,10 @@ def createint(dlen = 100):
         lb, ub, peak = 0, 0, 0
         while True:
             try:
-                lb = int(input('Insert a lower bound: '))
-                ub = int(input('Insert an upper bound: '))
+                lb = int(cinput('Insert a lower bound: ', path))
+                ub = int(cinput('Insert an upper bound: ', path))
                 if int(dist) == 3:
-                    peak = int(input('Pick a peak between lower and upper bound (inclusive): '))
+                    peak = int(cinput('Pick a peak between lower and upper bound (inclusive): ', path))
                     assert peak >= lb and peak <= ub
                 break
             except:
@@ -103,8 +117,8 @@ def createint(dlen = 100):
         mn, std = 0, 1
         while True:
             try:
-                mn = int(input('Insert a mean: '))
-                std = int(input('Insert a standard deviation: '))
+                mn = int(cinput('Insert a mean: ', path))
+                std = int(cinput('Insert a standard deviation: ', path))
                 break
             except:
                 print('Must be a valid integer!')
@@ -113,7 +127,7 @@ def createint(dlen = 100):
         prob = 0.5
         while True:
             try:
-                prob = float(input('Probability (As percentage): '))/100
+                prob = float(cinput('Probability (As percentage): ', path))/100
                 break
             except:
                 print('Must be a valid integer!')
@@ -122,17 +136,17 @@ def createint(dlen = 100):
         scale = 1
         while True:
             try:
-                scale = float(input('Scale Factor: '))
+                scale = float(cinput('Scale Factor: ', path))
                 break
             except:
                 print('Must be a valid integer!')
         return pd.Series(np.round(np.random.exponential(scale, dlen), decimals = 0)).astype(int)
 
-def createfloat(dlen = 100):
+def createfloat(dlen = 100, path=None):
     dist = ''
     while True:
         try:
-            dist = input('Choose a Distribution (by number):\n 1. Uniform\n 2. Normal\n 3. Triangular\n 4. Exponential\n').replace('.','')
+            dist = cinput('Choose a Distribution (by number):\n 1. Uniform\n 2. Normal\n 3. Triangular\n 4. Exponential\n', path).replace('.','')
             _ = int(dist)
             break
         except:
@@ -141,10 +155,10 @@ def createfloat(dlen = 100):
         lb, ub, peak = 0, 0, 0
         while True:
             try:
-                lb = float(input('Insert a lower bound: '))
-                ub = float(input('Insert an upper bound: '))
+                lb = float(cinput('Insert a lower bound: ', path))
+                ub = float(cinput('Insert an upper bound: ', path))
                 if int(dist) == 3:
-                    peak = float(input('Pick a peak between lower and upper bound (inclusive): '))
+                    peak = float(cinput('Pick a peak between lower and upper bound (inclusive): ', path))
                     assert peak >= lb and peak <= ub
                 break
             except:
@@ -157,8 +171,8 @@ def createfloat(dlen = 100):
         mn, std = 0, 1
         while True:
             try:
-                mn = float(input('Insert a mean: '))
-                std = float(input('Insert a standard deviation: '))
+                mn = float(cinput('Insert a mean: ', path))
+                std = float(cinput('Insert a standard deviation: ', path))
                 break
             except:
                 print('Must be a valid integer!')
@@ -167,13 +181,13 @@ def createfloat(dlen = 100):
         scale = 1
         while True:
             try:
-                scale = float(input('Scale Factor: '))
+                scale = float(cinput('Scale Factor: ', path))
                 break
             except:
                 print('Must be a valid integer!')
         return pd.Series(np.random.exponential(scale, dlen))
 
-def createdate(dlen = 100):
+def createdate(dlen = 100, path=None):
     print('Datetime format examples:\
           \n     MM-DD-YYYY\
           \n     D/M/YY\
@@ -182,7 +196,7 @@ def createdate(dlen = 100):
           \n Please ensure to separate the day from the time with at minimum a single space.')
     format = ''
     while True:
-        format = input('Write datetime format (case sensitive):')
+        format = cinput('Write datetime format (case sensitive):', path)
         try:
             format = format.replace('YYYY', '%Y').replace('YY', '%y').replace('MM', '%m').replace('M', '%m')\
                         .replace('DD', '%d').replace('D', '%d').replace('hh', '%H').replace('mm', '%M')\
@@ -193,8 +207,8 @@ def createdate(dlen = 100):
             print('Invalid date format. Please try again.\n')
     sd, ed = '', ''
     while True:
-        sd = input('Start Date (formatted): ')
-        ed = input('End Date (formatted): ')
+        sd = cinput('Start Date (formatted): ', path)
+        ed = cinput('End Date (formatted): ', path)
         try:
             sd = pd.to_datetime(sd, format = format)
             ed = pd.to_datetime(ed, format = format)
@@ -203,28 +217,28 @@ def createdate(dlen = 100):
             print('Date improperly inputted.')
     return pd.to_datetime(pd.Series(np.random.randint(sd.timestamp(), ed.timestamp(), int(dlen))*(10**9)))
 
-def createcatint(dlen = 100):
+def createcatint(dlen = 100, path=None):
     lb, ub = 0, 0
     while True:
         try:
-            lb = int(input('Insert a lower bound: '))
-            ub = int(input('Insert an upper bound: '))
+            lb = int(cinput('Insert a lower bound: ', path))
+            ub = int(cinput('Insert an upper bound: ', path))
             break
         except:
             print('Must be a valid integer!')
     return pd.Series(np.random.choice(range(lb, ub), size=int(dlen), replace=True))
 
-def createtext(dlen = 100):
+def createtext(dlen = 100, path=None):
     print('\nTo create sentences about a topic, you will need to provide a set of example sentences about it.\
             \nSpecificity is key. The better the quality of the sentences provided, the better the quality of the sentences outputted.\
             \nFor example, if this data is for a classification model, you will have to make sure there is some overlap in the examples. Otherwise,\
             \nthe data will be too easy to classify. Input quality = Output quality.\n')
     def gen_text(clen=50, api=False):
         if api:
-            api_opt = input('Use google bard API to get topic sentences? (Y/N): ')
+            api_opt = cinput('Use google bard API to get topic sentences? (Y/N): ', path)
         while True:
             try:
-                sample_text = input_window()
+                sample_text = input_window(path=path)
                 assert len(re.findall('\.', sample_text)) > 7
                 break
             except:
@@ -234,13 +248,13 @@ def createtext(dlen = 100):
         for i in range(clen):
             empt.append(text_model.make_sentence())
         return empt
-    cats = input('Does the text need to obey categories? (Y/N): ')
+    cats = cinput('Does the text need to obey categories? (Y/N): ', path)
     if 'y' in cats.lower():
-        catname = input('Name the category column: ')
+        catname = cinput('Name the category column: ', path)
         cats, weights = [], []
         while True:
             try:
-                tups = input('List categories with weights/probabilities as tuples (i.e. (Spam, 0.4), (Ham, 0.6)) separated by commas: ')
+                tups = cinput('List categories with weights/probabilities as tuples (i.e. (Spam, 0.4), (Ham, 0.6)) separated by commas: ', path)
                 cats = re.findall(r'\(([^\,]+)', tups)
                 weights = list(map(float, re.findall(r'\,\W*([\d.]+)', tups)))
                 assert len(cats) == len(weights) > 0
@@ -257,7 +271,7 @@ def createtext(dlen = 100):
         return [shufdf['text'], shufdf['cat'], catname]
     return(pd.Series(gen_text(clen=int(dlen))))
 
-def createrandtext(dlen = 100):
+def createrandtext(dlen = 100, path=None):
     def genrand_word(length):
         letters = string.ascii_letters
         return ''.join(random.choice(letters) for _ in range(length))
@@ -265,12 +279,12 @@ def createrandtext(dlen = 100):
     dist = ''
     while True:
         try:
-            dist = input('Choose a type of fake text (by number):\
+            dist = cinput('Choose a type of fake text (by number):\
                          \n 1. Random String of Characters\
                          \n 2. Random String of Words\
                          \n 3. Random Sentence\
                          \n 4. Random Paragraph\
-                         \n 5. Random Names\n').replace('.','')
+                         \n 5. Random Names\n', path).replace('.','')
             assert int(dist) < 6
             break
         except:
@@ -291,13 +305,13 @@ def createrandtext(dlen = 100):
         randt.append(rand_text)
     return pd.Series(randt)
 
-def createcattext(dlen = 100):
-    eqdist = input('Should groups be distributed evenly? (Y/N): ')
+def createcattext(dlen = 100, path=None):
+    eqdist = cinput('Should groups be distributed evenly? (Y/N): ', path)
     if 'n' in eqdist.lower():
         cats, weights = [], []
         while True:
             try:
-                tups = input('List categories with weights/probabilities as tuples (i.e. (Group 1, 0.4), (Group 2, 0.6)) separated by commas: ')
+                tups = cinput('List categories with weights/probabilities as tuples (i.e. (Group 1, 0.4), (Group 2, 0.6)) separated by commas: ', path)
                 cats = re.findall(r'\(([^\,]+)', tups)
                 weights = list(map(float, re.findall(r'\,\W*([\d.]+)', tups)))
                 assert len(cats) == len(weights) > 0
@@ -305,16 +319,16 @@ def createcattext(dlen = 100):
             except:
                 print('Invalid input. Please try again.')
         return pd.Series(random.choices(cats, weights=weights,k=int(dlen)))
-    catnames = StringInput('List category names, separated by commas: ', ',')
+    catnames = StringInput('List category names, separated by commas: ', ',', path=path)
     return pd.Series(np.random.choice(catnames.list(), size=int(dlen), replace=True))
 
-def change(dframe, mdata, opt, passdict):
+def change(dframe, mdata, opt, passdict, path=None):
     if opt == 1:
         print('Columns: ', dframe.columns)
         col = ''
         while True:
             try:
-                col = input('Choose column to remove: ')
+                col = cinput('Choose column to remove: ', path)
                 assert col in dframe.columns
                 break
             except:
@@ -325,7 +339,7 @@ def change(dframe, mdata, opt, passdict):
         col = ''
         while True:
             try:
-                col = input('Choose column to resample: ')
+                col = cinput('Choose column to resample: ', path)
                 assert col in dframe.columns
                 break
             except:
@@ -338,7 +352,7 @@ def change(dframe, mdata, opt, passdict):
         newlen = 0
         while True:
             try:
-                newlen = int(input('New DataFrame Length'))
+                newlen = int(cinput('New DataFrame Length', path))
                 assert newlen <= dframe.shape[0]
                 break
             except:
@@ -346,11 +360,18 @@ def change(dframe, mdata, opt, passdict):
         return dframe.sample(newlen, replace=False)
         
 
-def datagenerator():
+def datagenerator(set_path=None):
+
+    global inp_path
+    inp_path = []
+
+    global path
+    if set_path is not None:
+        path = set_path.copy()
 
     print('Welcome to DataFrame Generator! Let\'s begin:')
     print('Step 1: Establish columns')
-    colnames = StringInput('List column names, separated by commas: ', ',')
+    colnames = StringInput('List column names, separated by commas: ', ',', path=path)
 
     print('Choose column types. Options: \
           \n integer(int) - integer numbers(randomly generated) \
@@ -363,7 +384,7 @@ def datagenerator():
     
     coltypes = None
     while True:
-        coltypes = StringInput('List out the column types, separated by commas: ', ',')
+        coltypes = StringInput('List out the column types, separated by commas: ', ',', path=path)
         if coltypes.length() == colnames.length():
             break
         else:
@@ -382,7 +403,7 @@ def datagenerator():
                 'categorical text': createcattext,
                 'cattext': createcattext}
     
-    params = StringInput('List out the intended length (or \'rand\' for random) of the data and the output datatype (csv, xslx, tsv, df) separated by commas: ', ',')
+    params = StringInput('List out the intended length (or \'rand\' for random) of the data and the output datatype (csv, xslx, tsv, df) separated by commas: ', ',', path=path)
     par_list = params.list()
     try:
         par_list[0] = int(params.list()[0])
@@ -398,7 +419,7 @@ def datagenerator():
 
     for i in range(colnames.length()):
         print(f'Making column: {colnames.list()[i]} \nColumn type: {coltypes.list()[i]} \n ')
-        outputr = typedict[coltypes.list()[i].lower()](dlen = par_list[0])
+        outputr = typedict[coltypes.list()[i].lower()](dlen = par_list[0], path = path)
         if isinstance(outputr, list):
             dframe[colnames.list()[i]] = outputr
             dframe[outputr[2]] = outputr[1]
@@ -419,7 +440,7 @@ def datagenerator():
                   \n 5. Cancel')
             while True:
                 try:
-                    prompt2 = input('Choose:').replace('.', '')
+                    prompt2 = cinput('Choose:', path=None).replace('.', '')
                     assert int(prompt2) < 6
                     break
                 except:
@@ -432,23 +453,29 @@ def datagenerator():
                 break
         else:
             break
-    
+    path_out = None
+    if set_path is None:
+        path_out = inp_path
+        print('New Path Saved: ', inp_path)
+    else:
+        path_out = set_path.copy()
+        print('Path used: ', path_out.extend(inp_path))
     outtype = params.list()[1].lower()
     if outtype == 'csv':
         print('New file created: ', os.getcwd(), '/', 'fakedata.csv')
         dframe.to_csv('fakedata.csv')
-        return None
+        return path_out
     elif outtype == 'xlsx':
         print('New file created: ', os.getcwd(), '/', 'fakedata.xlsx')
         dframe.to_excel('fakedata.xlsx')
-        return None
+        return path_out
     elif outtype == 'tsv':
         print('New file created: ', os.getcwd(), '/', 'fakedata.tsv')
         dframe.to_csv('fakedata.tsv', sep = '\t')
-        return None
+        return path_out
     else:
-        return dframe
+        return dframe, path_out
 
-fakedata = datagenerator()
-
+choosepath = None #['number', 'int', 'rand, df', '1', '0', '15'] # <-- Uncomment this to choose this path
+fakedata, savepath = datagenerator(choosepath)
 print('Final Output: \n', fakedata)
